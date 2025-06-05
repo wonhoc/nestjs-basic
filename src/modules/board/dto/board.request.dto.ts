@@ -6,7 +6,18 @@ import {
   MinLength,
   Matches,
   MaxLength,
+  IsOptional,
 } from 'class-validator';
+
+export class SearchBoardsDto {
+  @ApiProperty({
+    description: '검색어',
+    example: '',
+  })
+  @IsOptional() // 필수 추가!
+  @IsString() // 필수 추가!
+  keyword?: string;
+}
 
 export class CreateBoardDto {
   @ApiProperty({
@@ -27,6 +38,10 @@ export class CreateBoardDto {
 }
 
 export class UpdateBoardDto {
+  @ApiProperty({
+    description: '게시글의 ID',
+    example: '1',
+  })
   @IsNotEmpty({ message: '게시글의 아이디가 없습니다.' })
   id: number;
 

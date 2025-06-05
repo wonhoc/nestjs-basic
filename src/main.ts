@@ -22,6 +22,10 @@ async function bootstrap() {
     credentials: true, // 쿠키 포함 요청 허용
   });
 
+  // 환경 설정에서 포트 가져오기
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('app.port', 3000);
+
   // Transactional 설정
   const dataSource = app.get(DataSource);
   addTransactionalDataSource(dataSource);
@@ -32,6 +36,11 @@ async function bootstrap() {
     .setDescription('The API description')
     .setVersion('1.0')
     .addTag('')
+    .addServer(
+      configService.get<string>('app.apiPrefix', 'api/main'),
+      'Main API Server',
+    )
+    .addBearerAuth() // 기본 JWT Bearer 인증 추가
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
@@ -44,10 +53,6 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-
-  // 환경 설정에서 포트 가져오기
-  const configService = app.get(ConfigService);
-  const port = configService.get<number>('app.port', 3000);
 
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api/main');
   app.setGlobalPrefix(apiPrefix);

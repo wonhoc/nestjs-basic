@@ -5,6 +5,8 @@ import databaseConfig from './config/database.config';
 import appConfig from './config/app.config';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { BoardModule } from './modules/board/board.module';
+
 @Module({
   imports: [
     // 환경 설정 로드
@@ -30,6 +32,7 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     UserModule,
     AuthModule,
+    BoardModule,
   ],
 })
 export class AppModule {}
