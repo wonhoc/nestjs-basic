@@ -1,0 +1,48 @@
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  Matches,
+  MaxLength,
+} from 'class-validator';
+
+export class CreateBoardDto {
+  @ApiProperty({
+    description: '게시글의 제목',
+    example: '제목1',
+  })
+  @MinLength(2, { message: '최소 1자 이상 입력해주세요' })
+  @MaxLength(30, { message: '최대 30자까지 입력 가능합니다.' })
+  title: string;
+
+  @ApiProperty({
+    description: '게시글의 내용',
+    example: '내용1',
+  })
+  @MinLength(2, { message: '최소 1자 이상 입력해주세요' })
+  @MaxLength(500, { message: '최대 500자까지 입력 가능합니다.' })
+  content: string;
+}
+
+export class UpdateBoardDto {
+  @IsNotEmpty({ message: '게시글의 아이디가 없습니다.' })
+  id: number;
+
+  @ApiProperty({
+    description: '게시글의 제목',
+    example: '제목1',
+  })
+  @MinLength(2, { message: '최소 1자 이상 입력해주세요' })
+  @MaxLength(30, { message: '최대 30자까지 입력 가능합니다.' })
+  title: string;
+
+  @ApiProperty({
+    description: '게시글의 내용',
+    example: '내용1',
+  })
+  @MinLength(2, { message: '최소 1자 이상 입력해주세요' })
+  @MaxLength(500, { message: '최대 500자까지 입력 가능합니다.' })
+  content: string;
+}
