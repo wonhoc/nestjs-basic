@@ -1,4 +1,4 @@
-import { Repository, EntityManager } from 'typeorm';
+import { Repository, EntityManager, Like } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './board.entity';
 import { CustomApiException } from 'src/common/exceptions/custom-api.exception';
@@ -10,6 +10,8 @@ import {
   UpdateBoardDto,
 } from './dto/board.request.dto';
 import { Transactional } from 'typeorm-transactional';
+import { CommonSearchDto } from 'src/common/dto/request.dto';
+import { Paginate } from 'common/decorators/paginate.decorator';
 
 @Injectable()
 export class BoardService {
@@ -19,10 +21,19 @@ export class BoardService {
   ) {}
 
   // 게시글 목록 조회
-  async find(searchBoardsDto: SearchBoardsDto): Promise<Board[]> {
-    const boards: Board[] | null = await this.boardRepository.find();
+  @Paginate()
+  async find(commonSearchDto: CommonSearchDto) {
+    const queryBuilder = this.boardRepository.createQueryBuilder('board');
 
-    return boards;
+    if (commonSearchDto.keyword) {
+      queryBuilder.where('board.title LIKE :keyword', {
+        keyword: `%${commonSearchDto.keyword}%`,
+      });
+    }
+
+    queryBuilder.orderBy('board.createDtm', 'DESC');
+
+    return queryBuilder; // 데코레이터가 자동으로 PaginatedResponseDto로 변환
   }
 
   // 게시글 조회
@@ -34,7 +45,7 @@ export class BoardService {
     if (!board) {
       throw new CustomApiException(ErrorCode.COMM_FIND_ERROR);
     }
-
+    console.log(board);
     return board;
   }
 

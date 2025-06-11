@@ -44,10 +44,7 @@ export class ApiResponseInterceptor implements NestInterceptor {
           case 'list':
             return {
               success: true,
-              data: {
-                items: Array.isArray(data) ? data : [data],
-                total: Array.isArray(data) ? data.length : 1,
-              },
+              data,
               message: responseConfig.message || '목록 조회 성공',
               timestamp: new Date().toISOString(),
               path: request.url,
@@ -107,13 +104,7 @@ export const ApiListResponse = (message?: string) =>
       schema: {
         properties: {
           success: { type: 'boolean' },
-          data: {
-            type: 'object',
-            properties: {
-              items: { type: 'array' },
-              total: { type: 'number' },
-            },
-          },
+          data: { type: 'object' },
           message: { type: 'string' },
           timestamp: { type: 'string' },
           path: { type: 'string' },

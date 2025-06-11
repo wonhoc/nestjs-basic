@@ -10,11 +10,7 @@ import {
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { ApiOperation } from '@nestjs/swagger';
-import {
-  SearchBoardsDto,
-  CreateBoardDto,
-  UpdateBoardDto,
-} from './dto/board.request.dto';
+import { CreateBoardDto, UpdateBoardDto } from './dto/board.request.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import {
   ApiListResponse,
@@ -22,6 +18,8 @@ import {
   ApiCreateResponse,
   ApiUpdateResponse,
 } from 'common/decorators/api-response.decorator';
+
+import { CommonSearchDto } from 'src/common/dto/request.dto';
 
 @Controller('/board')
 export class BoardController {
@@ -33,8 +31,8 @@ export class BoardController {
     description: '게시판의 목록을 조회한다.',
   })
   @ApiListResponse()
-  find(@Query() searchBoardsDto: SearchBoardsDto) {
-    return this.boardService.find(searchBoardsDto);
+  find(@Query() commonSearchDto: CommonSearchDto) {
+    return this.boardService.find(commonSearchDto);
   }
 
   @Get(':id')
