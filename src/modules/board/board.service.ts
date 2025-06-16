@@ -8,6 +8,7 @@ import {
   SearchBoardsDto,
   CreateBoardDto,
   UpdateBoardDto,
+  DeleteBoardDto,
 } from './dto/board.request.dto';
 import { Transactional } from 'typeorm-transactional';
 import { CommonSearchDto } from 'src/common/dto/request.dto';
@@ -31,7 +32,7 @@ export class BoardService {
       });
     }
 
-    queryBuilder.orderBy('board.createDtm', 'DESC');
+    queryBuilder.orderBy('board.createdDtm', 'DESC');
 
     return queryBuilder; // 데코레이터가 자동으로 PaginatedResponseDto로 변환
   }
@@ -60,13 +61,25 @@ export class BoardService {
 
   // 게시글 수정
   @Transactional()
-  async update(updateBoardDto: UpdateBoardDto) {
+  async update(id: number, updateBoardDto: UpdateBoardDto) {
     const board: Board | null = await this.boardRepository.findOne({
-      where: { id: updateBoardDto.id },
+      where: { id },
     });
 
     if (board == null) throw new CustomApiException(ErrorCode.COMM_FIND_ERROR);
 
-    await this.boardRepository.update(updateBoardDto.id, updateBoardDto);
+    await this.boardRepository.update(id, updateBoardDto);
+  }
+
+  // 게시글 삭제
+  @Transactional()
+  async delete(id: number) {
+    const board: Board | null = await this.boardRepository.findOne({
+      where: { id },
+    });
+
+    if (board == null) throw new CustomApiException(ErrorCode.COMM_FIND_ERROR);
+
+    await this.boardRepository.update(id, { deleted: true });
   }
 }

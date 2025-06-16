@@ -2,14 +2,17 @@ import { Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 export abstract class BaseEntity {
   @CreateDateColumn()
-  createDtm: Date;
+  createdDtm: Date;
 
   @UpdateDateColumn()
-  updateDtm: Date;
+  updatedDtm: Date;
 
   @Column({ nullable: true })
   createdBy: string;
 
   @Column({ nullable: true })
   updatedBy: string;
+
+  @Column({ nullable: true })
+  deleted: boolean = false;
 }

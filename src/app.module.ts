@@ -6,6 +6,7 @@ import appConfig from './config/app.config';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BoardModule } from './modules/board/board.module';
+import { MenuModule } from './modules/menu/menu.module';
 
 @Module({
   imports: [
@@ -27,12 +28,13 @@ import { BoardModule } from './modules/board/board.module';
         password: configService.get('database.password'),
         database: configService.get('database.database'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('database.synchronize'),
+        synchronize: true,
       }),
     }),
     UserModule,
     AuthModule,
     BoardModule,
+    MenuModule,
   ],
 })
 export class AppModule {}

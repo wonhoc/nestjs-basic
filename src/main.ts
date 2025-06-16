@@ -50,8 +50,8 @@ async function bootstrap() {
     new ValidationPipe({
       transform: true,
       whitelist: true,
-      forbidNonWhitelisted: false,
-      skipMissingProperties: false,
+      forbidNonWhitelisted: true,
+      skipMissingProperties: true,
     }),
   );
 

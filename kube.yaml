@@ -1,0 +1,168 @@
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nest-base
+---
+# ConfigMap for non-sensitive environment variables
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nest-base-env
+  namespace: nest-base
+data:
+  NODE_ENV: 'production'
+  PORT: '3001'
+  DB_TYPE: 'mysql'
+  DB_HOST: '192.168.10.115'
+  DB_PORT: '3306'
+  DB_USERNAME: 'root'
+  DB_DATABASE: 'test'
+  DB_SYNC: 'true'
+  API_PREFIX: 'api/main'
+  CORS_ORIGIN: 'http://192.168.10.115:3000,http://192.168.10.115:3010'
+  JWT_EXPIRES_IN: '15m'
+  JWT_REFRESH_EXPIRES_IN: '7d'
+---
+# Secret for sensitive data
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nest-base-secret
+  namespace: nest-base
+type: Opaque
+data:
+  # base64 인코딩된 값들 (echo -n "value" | base64)
+  DB_PASSWORD: d29uaG8= # wonho
+  JWT_SECRET: ZjA3Y2Q2ZWQtZmJlZi00M2YwLWExMjMtODliMmNmOWQ2ZDk1 # f07cd6ed-fbef-43f0-a123-89b2cf9d6d95
+  JWT_REFRESH_SECRET: ZjFhZWQzNzUtMDJkNy00MWJiLThlNmMtMWJlZmFmNzcxYzNl # f1aed375-02d7-41bb-8e6c-1befaf771c3e
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nest-base-deployment
+  namespace: nest-base
+  labels:
+    app: nest-base
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nest-base
+  template:
+    metadata:
+      labels:
+        app: nest-base
+    spec:
+      containers:
+        - name: nest-base
+          image: nest-base:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3001
+          env:
+            # ConfigMap에서 가져오는 환경변수들
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: NODE_ENV
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: PORT
+            - name: DB_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: DB_TYPE
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: DB_PORT
+            - name: DB_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: DB_USERNAME
+            - name: DB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: DB_DATABASE
+            - name: DB_SYNC
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: DB_SYNC
+            - name: API_PREFIX
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: API_PREFIX
+            - name: CORS_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: CORS_ORIGIN
+            - name: JWT_EXPIRES_IN
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: JWT_EXPIRES_IN
+            - name: JWT_REFRESH_EXPIRES_IN
+              valueFrom:
+                configMapKeyRef:
+                  name: nest-base-env
+                  key: JWT_REFRESH_EXPIRES_IN
+            # Secret에서 가져오는 민감한 환경변수들
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: nest-base-secret
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: nest-base-secret
+                  key: JWT_SECRET
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: nest-base-secret
+                  key: JWT_REFRESH_SECRET
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nest-base-service
+  namespace: nest-base
+  labels:
+    app: nest-base
+spec:
+  selector:
+    app: nest-base
+  ports:
+    - port: 80
+      targetPort: 3001
+      nodePort: 31159
+      protocol: TCP
+  type: NodePort
+---
+

@@ -34,8 +34,6 @@ export class AuthService {
     // Refresh token을 데이터베이스에 저장
     await this.usersService.updateRefreshToken(user.id, refreshToken);
 
-    console.log(user);
-
     return {
       id: user.id,
       access_token: accessToken,
