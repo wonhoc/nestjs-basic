@@ -5,7 +5,6 @@ import * as bcrypt from 'bcryptjs';
 import { RegisterUserReqDto } from '../user/dto/user.request.dto';
 import { CustomApiException } from 'src/common/exceptions/custom-api.exception';
 import { ErrorCode } from 'src/common/exceptions/errorCode.type';
-import { LoginDto } from '../user/dto/user.request.dto';
 
 @Injectable()
 export class AuthService {

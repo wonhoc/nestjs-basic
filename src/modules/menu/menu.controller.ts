@@ -12,14 +12,7 @@ import {
   HttpStatus,
   ValidationPipe,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiParam,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { MenuService } from './menu.service';
 import {
   CreateMenuDto,
@@ -38,7 +31,6 @@ import {
 
 @ApiTags('메뉴 관리')
 @Controller('menus')
-@UseGuards(JwtAuthGuard)
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
 
@@ -47,6 +39,7 @@ export class MenuController {
     summary: '메뉴 생성',
     description: '새로운 메뉴를 생성합니다.',
   })
+  @UseGuards(JwtAuthGuard)
   @ApiCreateResponse()
   async create(@Body(ValidationPipe) createMenuDto: CreateMenuDto) {
     return this.menuService.create(createMenuDto, 'system'); // userId 대신 임시로 'system' 사용
@@ -94,6 +87,7 @@ export class MenuController {
     summary: '메뉴 상세 조회',
     description: '특정 메뉴의 상세 정보를 조회합니다.',
   })
+  @UseGuards(JwtAuthGuard)
   @ApiDetailResponse()
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.menuService.findOne(id);
@@ -104,17 +98,18 @@ export class MenuController {
     summary: '메뉴 수정',
     description: '기존 메뉴 정보를 수정합니다.',
   })
+  @UseGuards(JwtAuthGuard)
   @ApiUpdateResponse('게시글 수정 완료', true)
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body(ValidationPipe) updateMenuDto: UpdateMenuDto,
-    // @CurrentUser('id') userId: string,
-  ): Promise<MenuResponseDto> {
+  ) {
     return this.menuService.update(id, updateMenuDto, 'system'); // userId 대신 임시로 'system' 사용
   }
 
   @Delete(':id')
   @ApiOperation({ summary: '메뉴 삭제', description: '메뉴를 삭제합니다.' })
+  @UseGuards(JwtAuthGuard)
   @ApiDeleteResponse()
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.menuService.remove(id);

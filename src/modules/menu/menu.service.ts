@@ -66,6 +66,10 @@ export class MenuService {
   async findAll(query: MenuQueryDto): Promise<MenuResponseDto[]> {
     const queryBuilder = this.menuRepository.createQueryBuilder('menu');
 
+    queryBuilder.andWhere('menu.deleted = :deleted', {
+      deleted: false,
+    });
+
     // 조건 필터링
     if (query.parentId !== undefined) {
       if (query.parentId === null) {
@@ -204,13 +208,14 @@ export class MenuService {
       throw new NotFoundException(`메뉴를 찾을 수 없습니다. ID: ${id}`);
     }
 
+    // 하위 메뉴들을 재귀적으로 삭제
     if (menu.children && menu.children.length > 0) {
-      throw new BadRequestException(
-        '하위 메뉴가 있는 메뉴는 삭제할 수 없습니다.',
-      );
+      for (const child of menu.children) {
+        await this.remove(child.id); // 재귀 호출
+      }
     }
 
-    await this.menuRepository.remove(menu);
+    await this.menuRepository.update(id, { deleted: true });
   }
 
   // 메뉴 순서 변경
