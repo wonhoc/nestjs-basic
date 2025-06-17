@@ -22,6 +22,23 @@ export const ErrorCode = {
     httpStatus: 500,
   },
 
+  // 메뉴 관련 에려
+  MENU_FIND_ERROR: {
+    code: 'ERROR-MENU-E001',
+    message: '데이터를 찾을 수 없습니다.',
+    httpStatus: 500,
+  },
+  MENU_CRETE_BY_SELF: {
+    code: 'ERROR-MENU-E002',
+    message: '자기 자신을 부모로 설정할 수 없습니다.',
+    httpStatus: 500,
+  },
+  MENU_CYCLE_ERROR: {
+    code: 'ERROR-MENU-E003',
+    message: '순환 참조가 발생합니다.',
+    httpStatus: 500,
+  },
+
   // 사용자 관련 에러 (400, 401, 404)
   USER_IS_NOT_FOUND: {
     code: 'ERROR-USER-E001',

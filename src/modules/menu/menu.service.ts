@@ -12,6 +12,9 @@ import {
   MenuQueryDto,
   MenuResponseDto,
 } from './dto/menu.request.dto';
+import { Transactional } from 'typeorm-transactional';
+import { CustomApiException } from 'src/common/exceptions/custom-api.exception';
+import { ErrorCode } from 'src/common/exceptions/errorCode.type';
 
 @Injectable()
 export class MenuService {
@@ -21,6 +24,7 @@ export class MenuService {
   ) {}
 
   // 메뉴 생성
+  @Transactional()
   async create(
     createMenuDto: CreateMenuDto,
     userId?: string,
@@ -56,7 +60,7 @@ export class MenuService {
       createdBy: userId,
       updatedBy: userId,
     };
-    console.log(menuData);
+
     const menu = this.menuRepository.create(menuData);
     const savedMenu = await this.menuRepository.save(menu);
     return this.mapToResponseDto(savedMenu);
@@ -145,13 +149,14 @@ export class MenuService {
     });
 
     if (!menu) {
-      throw new NotFoundException(`메뉴를 찾을 수 없습니다. ID: ${id}`);
+      throw new CustomApiException(ErrorCode.MENU_FIND_ERROR);
     }
 
     return this.mapToResponseDto(menu);
   }
 
   // 메뉴 수정
+  @Transactional()
   async update(
     id: number,
     updateMenuDto: UpdateMenuDto,
@@ -160,13 +165,13 @@ export class MenuService {
     const menu = await this.menuRepository.findOne({ where: { id } });
 
     if (!menu) {
-      throw new NotFoundException(`메뉴를 찾을 수 없습니다. ID: ${id}`);
+      throw new CustomApiException(ErrorCode.MENU_FIND_ERROR);
     }
 
     // 부모 메뉴 변경 시 검증
     if (updateMenuDto.parentId !== undefined) {
       if (updateMenuDto.parentId === id) {
-        throw new BadRequestException('자기 자신을 부모로 설정할 수 없습니다.');
+        throw new CustomApiException(ErrorCode.MENU_CRETE_BY_SELF);
       }
 
       if (updateMenuDto.parentId) {
@@ -174,14 +179,12 @@ export class MenuService {
           where: { id: updateMenuDto.parentId },
         });
         if (!parentMenu) {
-          throw new NotFoundException(
-            `부모 메뉴를 찾을 수 없습니다. ID: ${updateMenuDto.parentId}`,
-          );
+          throw new CustomApiException(ErrorCode.MENU_FIND_ERROR);
         }
 
         // 순환 참조 검사
         if (await this.hasCircularReference(id, updateMenuDto.parentId)) {
-          throw new BadRequestException('순환 참조가 발생합니다.');
+          throw new CustomApiException(ErrorCode.MENU_CYCLE_ERROR);
         }
 
         // 레벨 자동 계산
@@ -198,6 +201,7 @@ export class MenuService {
   }
 
   // 메뉴 삭제
+  @Transactional()
   async remove(id: number): Promise<void> {
     const menu = await this.menuRepository.findOne({
       where: { id },
@@ -205,7 +209,7 @@ export class MenuService {
     });
 
     if (!menu) {
-      throw new NotFoundException(`메뉴를 찾을 수 없습니다. ID: ${id}`);
+      throw new CustomApiException(ErrorCode.MENU_FIND_ERROR);
     }
 
     // 하위 메뉴들을 재귀적으로 삭제
@@ -219,6 +223,7 @@ export class MenuService {
   }
 
   // 메뉴 순서 변경
+  @Transactional()
   async reorderMenus(menuIds: number[]): Promise<void> {
     for (let i = 0; i < menuIds.length; i++) {
       await this.menuRepository.update(menuIds[i], { sortOrder: i + 1 });
